@@ -212,8 +212,12 @@ public class PerformanceIntegrationTest {
 
                 final CompletableFuture<Response> result = new CompletableFuture<>();
 
-                con.makeRequest(request, new ResponseStreamHandler(con, result))
-                        .whenComplete((stream, err) -> { if (err != null) { result.completeExceptionally(err); }});
+                final HttpStream stream = con.makeRequest(request, new ResponseStreamHandler(con, result));
+                try {
+                    stream.activate();
+                } catch (Exception e) {
+                    result.completeExceptionally(e);
+                }
 
                 return result;
 
